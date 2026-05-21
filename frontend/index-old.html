@@ -1,0 +1,1240 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Amsterdam Cool Location Map - Decision Support</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      position: relative;
+      z-index: 100;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Main layout */
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 350px;
+      background: white;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafafa;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 35px 10px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .search-box button {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #667eea;
+      font-size: 16px;
+      padding: 5px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-buttons button {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .action-buttons button:hover {
+      background: #f5f5f5;
+      border-color: #667eea;
+    }
+
+    .action-buttons button i {
+      margin-right: 4px;
+    }
+
+    /* Tabs */
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid #e0e0e0;
+      background: #fafafa;
+    }
+
+    .sidebar-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .sidebar-tab.active {
+      color: #667eea;
+      border-bottom: 3px solid #667eea;
+      background: white;
+    }
+
+    /* Sidebar content */
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+
+    .layer-category {
+      margin-bottom: 20px;
+    }
+
+    .layer-category-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      cursor: pointer;
+      background: #f5f5f5;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      user-select: none;
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .layer-category-header:hover {
+      background: #efefef;
+    }
+
+    .layer-category-header .expand-icon {
+      transition: transform 0.2s;
+      color: #667eea;
+    }
+
+    .layer-category-header.collapsed .expand-icon {
+      transform: rotate(-90deg);
+    }
+
+    .layer-list {
+      display: none;
+      padding-left: 10px;
+      border-left: 2px solid #e0e0e0;
+      margin-left: 5px;
+    }
+
+    .layer-list.expanded {
+      display: block;
+    }
+
+    .layer-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      margin: 4px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 13px;
+    }
+
+    .layer-item:hover {
+      background: #f0f0f0;
+    }
+
+    .layer-item input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .layer-item label {
+      flex: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .layer-item .color-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
+    }
+
+    .opacity-slider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      font-size: 12px;
+    }
+
+    .opacity-slider input {
+      flex: 1;
+    }
+
+    /* Detail panel */
+    .detail-panel {
+      background: white;
+      padding: 15px;
+      border-top: 1px solid #e0e0e0;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .detail-panel.active {
+      display: block;
+    }
+
+    .detail-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .detail-panel-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .detail-panel h3 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .detail-panel p {
+      margin: 6px 0;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .detail-property {
+      margin: 8px 0;
+      padding: 8px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .detail-property-label {
+      font-weight: 600;
+      color: #667eea;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-property-value {
+      color: #333;
+      margin-top: 2px;
+    }
+
+    /* Results panel */
+    .results-panel {
+      background: white;
+      padding: 15px;
+      border-top: 1px solid #e0e0e0;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .results-panel.active {
+      display: block;
+    }
+
+    .result-item {
+      padding: 10px;
+      margin: 8px 0;
+      background: #f9f9f9;
+      border-left: 3px solid #667eea;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .result-item:hover {
+      background: #f0f0f0;
+      transform: translateX(4px);
+    }
+
+    .result-item-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: #333;
+    }
+
+    .result-item-meta {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .result-item-distance {
+      font-size: 12px;
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    /* Map */
+    #map {
+      flex: 1;
+      background: #f5f5f5;
+    }
+
+    .map-control {
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      margin: 10px;
+      z-index: 400;
+    }
+
+    .legend {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      font-size: 12px;
+      max-width: 250px;
+    }
+
+    .legend-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 4px 0;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* Markers */
+    .marker-icon-small {
+      width: 30px;
+      height: 30px;
+    }
+
+    .marker-icon-large {
+      width: 40px;
+      height: 40px;
+    }
+
+    /* Scrollbar styling */
+    .sidebar-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 3px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb:hover {
+      background: #999;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        z-index: 500;
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+        width: 80vw;
+        max-width: 350px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><i class="fas fa-map"></i> Cool Map Amsterdam - Decision Support</h1>
+  </header>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="Search address, postcode..." />
+          <button id="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+        <div class="action-buttons">
+          <button id="locate-btn"><i class="fas fa-location-crosshairs"></i> My Location</button>
+          <button id="find-nearest-btn"><i class="fas fa-compass"></i> Nearby</button>
+        </div>
+      </div>
+
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-tab="layers"><i class="fas fa-layer-group"></i> Layers</button>
+        <button class="sidebar-tab" data-tab="results"><i class="fas fa-list"></i> Results</button>
+      </div>
+
+      <div class="sidebar-content" id="layers-tab">
+        <!-- Cooling Infrastructure -->
+        <div class="layer-category">
+          <div class="layer-category-header">
+            <i class="fas fa-expand-icon"></i>
+            <i class="fas fa-snowflake" style="color: #4A90E2;"></i>
+            <span>Cooling Infrastructure</span>
+          </div>
+          <div class="layer-list expanded">
+            <div class="layer-item">
+              <input type="checkbox" class="layer-toggle" data-category="water_taps" checked />
+              <label>
+                <div class="color-swatch" style="background: #4A90E2;"></div>
+                Water Taps
+              </label>
+            </div>
+            <div class="layer-item">
+              <input type="checkbox" class="layer-toggle" data-category="cool_locations" checked />
+              <label>
+                <div class="color-swatch" style="background: #FF9D3D;"></div>
+                Cool Locations
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Green Infrastructure -->
+        <div class="layer-category">
+          <div class="layer-category-header">
+            <i class="fas fa-expand-icon"></i>
+            <i class="fas fa-leaf" style="color: #51CF66;"></i>
+            <span>Green Infrastructure</span>
+          </div>
+          <div class="layer-list expanded">
+            <div class="layer-item">
+              <input type="checkbox" class="layer-toggle" data-category="parks" checked />
+              <label>
+                <div class="color-swatch" style="background: #51CF66;"></div>
+                Parks & Green Spaces
+              </label>
+            </div>
+            <div class="layer-item">
+              <input type="checkbox" class="layer-toggle" data-category="trees" checked />
+              <label>
+                <div class="color-swatch" style="background: #228B22;"></div>
+                Trees (Shade)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Services -->
+        <div class="layer-category">
+          <div class="layer-category-header">
+            <i class="fas fa-expand-icon"></i>
+            <i class="fas fa-people-group" style="color: #FF6B6B;"></i>
+            <span>Social Services</span>
+          </div>
+          <div class="layer-list expanded">
+            <div class="layer-item">
+              <input type="checkbox" class="layer-toggle" data-category="social_services" checked />
+              <label>
+                <div class="color-swatch" style="background: #FF6B6B;"></div>
+                Community Centers & Care
+              </label>
+            </div>
+            <div id="service-type-filters" style="margin-top: 8px; padding-left: 24px; border-left: 1px solid #e0e0e0;">
+              <div class="layer-item" style="padding: 6px 8px; font-size: 12px;">
+                <input type="checkbox" class="service-toggle" data-service-type="Jeugd en Zorg" checked />
+                <label>Jeugd en Zorg</label>
+              </div>
+              <div class="layer-item" style="padding: 6px 8px; font-size: 12px;">
+                <input type="checkbox" class="service-toggle" data-service-type="Sport en Spelen" checked />
+                <label>Sport en Spelen</label>
+              </div>
+              <div class="layer-item" style="padding: 6px 8px; font-size: 12px;">
+                <input type="checkbox" class="service-toggle" data-service-type="Onderwijs" checked />
+                <label>Onderwijs</label>
+              </div>
+              <div class="layer-item" style="padding: 6px 8px; font-size: 12px;">
+                <input type="checkbox" class="service-toggle" data-service-type="Kunst en Cultuur" checked />
+                <label>Kunst en Cultuur</label>
+              </div>
+              <div class="layer-item" style="padding: 6px 8px; font-size: 12px;">
+                <input type="checkbox" class="service-toggle" data-service-type="Basisvoorzieningen" checked />
+                <label>Basisvoorzieningen</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Heat Risk -->
+        <div class="layer-category">
+          <div class="layer-category-header">
+            <i class="fas fa-expand-icon"></i>
+            <i class="fas fa-thermometer-full" style="color: #E74C3C;"></i>
+            <span>Heat Risk (Future)</span>
+          </div>
+          <div class="layer-list expanded">
+            <div class="layer-item">
+              <input type="checkbox" class="layer-toggle" data-category="heat_risk" />
+              <label>
+                <div class="color-swatch" style="background: #E74C3C;"></div>
+                Heat Stress Layer
+              </label>
+            </div>
+            <div class="opacity-slider">
+              <label>Opacity:</label>
+              <input type="range" min="0" max="100" value="50" id="heat-opacity" />
+              <span id="heat-opacity-value">50%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-content results-panel" id="results-tab">
+        <!-- Results will be populated here -->
+      </div>
+
+      <div class="detail-panel" id="detail-panel">
+        <div class="detail-panel-header">
+          <div>
+            <h3 id="detail-title">Feature Details</h3>
+            <p id="detail-type" style="color: #999; margin: 0; font-size: 12px;"></p>
+          </div>
+          <button class="detail-panel-close" id="detail-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="detail-content"></div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet Geocoding (Nominatim) -->
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+  <script>
+    // ============================================================================
+    // GLOBAL STATE & CONFIGURATION
+    // ============================================================================
+
+    const state = {
+      map: null,
+      layers: {
+        water_taps: null,
+        parks: null,
+        trees: null,
+        social_services: null,
+        cool_locations: null,
+        heat_risk: null,
+      },
+      activeServiceTypes: {
+        "Jeugd en Zorg": true,
+        "Sport en Spelen": true,
+        Onderwijs: true,
+        "Kunst en Cultuur": true,
+        Basisvoorzieningen: true,
+      },
+      currentLocation: null,
+      selectedFeature: null,
+      highlightedMarkers: [],
+    };
+
+    const categoryColors = {
+      water_taps: "#4A90E2",
+      parks: "#51CF66",
+      trees: "#228B22",
+      social_services: "#FF6B6B",
+      cool_locations: "#FF9D3D",
+      heat_risk: "#E74C3C",
+    };
+
+    const serviceTypeColors = {
+      "Jeugd en Zorg": "#FF6B6B",
+      "Sport en Spelen": "#FF9D3D",
+      Onderwijs: "#4ECDC4",
+      "Kunst en Cultuur": "#95E1D3",
+      Basisvoorzieningen: "#C7CEEA",
+    };
+
+    // ============================================================================
+    // UTILITY FUNCTIONS
+    // ============================================================================
+
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Earth's radius in km
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function formatDistance(km) {
+      if (km < 0.1) return Math.round(km * 1000) + "m";
+      return km.toFixed(2) + "km";
+    }
+
+    function showTab(tabName) {
+      document.querySelectorAll(".sidebar-tab").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tabName);
+      });
+      document.getElementById("layers-tab").style.display = tabName === "layers" ? "block" : "none";
+      document.getElementById("results-tab").classList.toggle(
+        "active",
+        tabName === "results"
+      );
+    }
+
+    // ============================================================================
+    // MAP INITIALIZATION
+    // ============================================================================
+
+    function initMap() {
+      state.map = L.map("map").setView([52.37, 4.895], 12);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors",
+        maxZoom: 19,
+      }).addTo(state.map);
+
+      loadAllData();
+      setupLayerToggles();
+      setupSearchAndGeolocation();
+      setupCategoryToggles();
+    }
+
+    // ============================================================================
+    // DATA LOADING
+    // ============================================================================
+
+    function loadAllData() {
+      // Load water taps
+      fetch("/data/raw/water_taps.geojson")
+        .then((res) => res.json())
+        .then((data) => {
+          state.layers.water_taps = L.geoJSON(data, {
+            pointToLayer: (feature, latlng) => {
+              return L.circleMarker(latlng, {
+                radius: 5,
+                fillColor: categoryColors.water_taps,
+                color: "#fff",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8,
+              });
+            },
+            onEachFeature: (feature, layer) => {
+              layer.on("click", () => showFeatureDetail(feature, "water_tap"));
+            },
+          }).addTo(state.map);
+        })
+        .catch((err) => console.error("Failed to load water taps:", err));
+
+      // Load parks
+      fetch("/data/raw/parks.json")
+        .then((res) => res.json())
+        .then((data) => {
+          state.layers.parks = L.geoJSON(data, {
+            style: {
+              color: categoryColors.parks,
+              weight: 2,
+              opacity: 0.8,
+              fillOpacity: 0.4,
+            },
+            onEachFeature: (feature, layer) => {
+              layer.on("click", () => showFeatureDetail(feature, "park"));
+            },
+          }).addTo(state.map);
+        })
+        .catch((err) => console.error("Failed to load parks:", err));
+
+      // Load trees
+      fetch("/data/raw/trees.json")
+        .then((res) => res.json())
+        .then((data) => {
+          state.layers.trees = L.geoJSON(data, {
+            pointToLayer: (feature, latlng) => {
+              return L.circleMarker(latlng, {
+                radius: 4,
+                fillColor: categoryColors.trees,
+                color: "#fff",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.7,
+              });
+            },
+            onEachFeature: (feature, layer) => {
+              layer.on("click", () => showFeatureDetail(feature, "tree"));
+            },
+          }).addTo(state.map);
+        })
+        .catch((err) => console.error("Failed to load trees:", err));
+
+      // Load social services
+      fetch("/data/raw/social_services.geojson")
+        .then((res) => res.json())
+        .then((data) => {
+          const serviceTypeLayers = {};
+
+          state.layers.social_services = L.geoJSON(data, {
+            pointToLayer: (feature, latlng) => {
+              const domein = feature.properties?.Domein || "Unknown";
+              const color = serviceTypeColors[domein] || "#999999";
+              return L.circleMarker(latlng, {
+                radius: 6,
+                fillColor: color,
+                color: "#fff",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8,
+              });
+            },
+            onEachFeature: (feature, layer) => {
+              const domein = feature.properties?.Domein || "Unknown";
+              if (!serviceTypeLayers[domein]) {
+                serviceTypeLayers[domein] = L.featureGroup();
+              }
+              serviceTypeLayers[domein].addLayer(layer);
+              layer.on("click", () => showFeatureDetail(feature, "social_service"));
+            },
+          }).addTo(state.map);
+
+          state.layers.social_services.serviceTypeLayers = serviceTypeLayers;
+        })
+        .catch((err) => console.error("Failed to load social services:", err));
+
+      // Load cool locations
+      fetch("/api/v1/locations")
+        .then((res) => res.json())
+        .then((data) => {
+          const features = (data.locations || []).map((loc) => ({
+            type: "Feature",
+            geometry: loc.geometry,
+            properties: loc,
+          }));
+
+          state.layers.cool_locations = L.geoJSON(
+            { type: "FeatureCollection", features },
+            {
+              pointToLayer: (feature, latlng) => {
+                return L.circleMarker(latlng, {
+                  radius: 7,
+                  fillColor: categoryColors.cool_locations,
+                  color: "#fff",
+                  weight: 2,
+                  opacity: 1,
+                  fillOpacity: 0.8,
+                });
+              },
+              onEachFeature: (feature, layer) => {
+                layer.on("click", () => showFeatureDetail(feature, "cool_location"));
+              },
+            }
+          ).addTo(state.map);
+        })
+        .catch((err) => console.error("Failed to load cool locations:", err));
+    }
+
+    // ============================================================================
+    // LAYER TOGGLE & CATEGORY CONTROLS
+    // ============================================================================
+
+    function setupLayerToggles() {
+      document.addEventListener("change", (e) => {
+        if (e.target.classList.contains("layer-toggle")) {
+          const category = e.target.dataset.category;
+          if (e.target.checked) {
+            if (state.layers[category]) {
+              state.map.addLayer(state.layers[category]);
+            }
+          } else {
+            if (state.layers[category]) {
+              state.map.removeLayer(state.layers[category]);
+            }
+          }
+        }
+
+        if (e.target.classList.contains("service-toggle")) {
+          const serviceType = e.target.dataset.serviceType;
+          state.activeServiceTypes[serviceType] = e.target.checked;
+
+          if (
+            state.layers.social_services &&
+            state.layers.social_services.serviceTypeLayers
+          ) {
+            Object.entries(state.layers.social_services.serviceTypeLayers).forEach(
+              ([type, group]) => {
+                if (state.activeServiceTypes[type]) {
+                  state.map.addLayer(group);
+                } else {
+                  state.map.removeLayer(group);
+                }
+              }
+            );
+          }
+        }
+      });
+    }
+
+    function setupCategoryToggles() {
+      document.querySelectorAll(".layer-category-header").forEach((header) => {
+        header.addEventListener("click", (e) => {
+          if (e.target.closest(".expand-icon") || e.currentTarget === header) {
+            const list = header.nextElementSibling;
+            header.classList.toggle("collapsed");
+            list.classList.toggle("expanded");
+          }
+        });
+      });
+    }
+
+    // ============================================================================
+    // SEARCH & GEOLOCATION
+    // ============================================================================
+
+    function setupSearchAndGeolocation() {
+      const searchInput = document.getElementById("search-input");
+      const searchBtn = document.getElementById("search-btn");
+      const locateBtn = document.getElementById("locate-btn");
+      const findNearestBtn = document.getElementById("find-nearest-btn");
+
+      searchBtn.addEventListener("click", () => performSearch(searchInput.value));
+      searchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") performSearch(searchInput.value);
+      });
+
+      locateBtn.addEventListener("click", performGeolocation);
+      findNearestBtn.addEventListener("click", findNearestResources);
+    }
+
+    function performSearch(query) {
+      if (!query.trim()) return;
+
+      // Use Nominatim for geocoding
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        query + ", Amsterdam"
+      )}`;
+
+      fetch(url)
+        .then((res) => res.json())
+        .then((results) => {
+          if (results.length > 0) {
+            const result = results[0];
+            const lat = parseFloat(result.lat);
+            const lon = parseFloat(result.lon);
+            state.currentLocation = { lat, lon };
+            state.map.setView([lat, lon], 15);
+            L.circleMarker([lat, lon], {
+              radius: 10,
+              fillColor: "#667eea",
+              color: "#fff",
+              weight: 3,
+              opacity: 1,
+              fillOpacity: 0.8,
+            }).addTo(state.map);
+            showTab("results");
+          } else {
+            alert("Location not found");
+          }
+        })
+        .catch((err) => console.error("Search error:", err));
+    }
+
+    function performGeolocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          state.currentLocation = { lat: latitude, lon: longitude };
+          state.map.setView([latitude, longitude], 15);
+          L.circleMarker([latitude, longitude], {
+            radius: 10,
+            fillColor: "#667eea",
+            color: "#fff",
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.8,
+          }).addTo(state.map);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          alert("Could not get your location");
+        }
+      );
+    }
+
+    // ============================================================================
+    // NEAREST RESOURCES FINDER
+    // ============================================================================
+
+    function findNearestResources() {
+      if (!state.currentLocation) {
+        alert("Please search for a location or use 'My Location' first");
+        return;
+      }
+
+      const results = [];
+
+      // Find nearest water taps
+      if (state.layers.water_taps) {
+        const waterTapDistances = [];
+        state.layers.water_taps.eachLayer((layer) => {
+          const latlng = layer.getLatLng();
+          const distance = haversineDistance(
+            state.currentLocation.lat,
+            state.currentLocation.lon,
+            latlng.lat,
+            latlng.lng
+          );
+          waterTapDistances.push({
+            layer,
+            distance,
+            type: "water_tap",
+            properties: layer.feature?.properties || {},
+          });
+        });
+        results.push(
+          ...waterTapDistances.sort((a, b) => a.distance - b.distance).slice(0, 3)
+        );
+      }
+
+      // Find nearest cool locations
+      if (state.layers.cool_locations) {
+        const coolDistances = [];
+        state.layers.cool_locations.eachLayer((layer) => {
+          const latlng = layer.getLatLng();
+          const distance = haversineDistance(
+            state.currentLocation.lat,
+            state.currentLocation.lon,
+            latlng.lat,
+            latlng.lng
+          );
+          coolDistances.push({
+            layer,
+            distance,
+            type: "cool_location",
+            properties: layer.feature?.properties || {},
+          });
+        });
+        results.push(
+          ...coolDistances.sort((a, b) => a.distance - b.distance).slice(0, 3)
+        );
+      }
+
+      // Sort by distance and display
+      results.sort((a, b) => a.distance - b.distance);
+      displayResults(results);
+      showTab("results");
+    }
+
+    function displayResults(results) {
+      const panel = document.getElementById("results-tab");
+      panel.innerHTML = "";
+
+      if (results.length === 0) {
+        panel.innerHTML = "<p style='padding: 10px; color: #999;'>No results found.</p>";
+        return;
+      }
+
+      results.forEach((result) => {
+        const item = document.createElement("div");
+        item.className = "result-item";
+        const name = result.properties.name || result.properties.Naam || "Unnamed";
+        item.innerHTML = `
+          <div class="result-item-title">${name}</div>
+          <div class="result-item-meta">${result.type.replace(/_/g, " ")}</div>
+          <div class="result-item-distance">${formatDistance(result.distance)}</div>
+        `;
+        item.addEventListener("click", () => {
+          state.map.setView(result.layer.getLatLng(), 16);
+          result.layer.fire("click");
+        });
+        panel.appendChild(item);
+      });
+    }
+
+    // ============================================================================
+    // FEATURE DETAIL PANEL
+    // ============================================================================
+
+    function showFeatureDetail(feature, featureType) {
+      const panel = document.getElementById("detail-panel");
+      const title = document.getElementById("detail-title");
+      const typeEl = document.getElementById("detail-type");
+      const content = document.getElementById("detail-content");
+
+      const props = feature.properties || {};
+      const names = [props.name, props.Naam, props["Name"], props.title];
+      const name = names.find((n) => n) || "Feature";
+
+      title.textContent = name;
+      typeEl.textContent = `Type: ${featureType.replace(/_/g, " ").toUpperCase()}`;
+
+      let detailHtml = "";
+
+      switch (featureType) {
+        case "water_tap":
+          detailHtml = `
+            <div class="detail-property">
+              <div class="detail-property-label">Address</div>
+              <div class="detail-property-value">${props["Dichtstbijzijnde adres binnen 100 meter"] || "N/A"}</div>
+            </div>
+            <div class="detail-property">
+              <div class="detail-property-label">Status</div>
+              <div class="detail-property-value">${props.Status || "N/A"}</div>
+            </div>
+            <div class="detail-property">
+              <div class="detail-property-label">Type</div>
+              <div class="detail-property-value">${props["Type afnamepunt"] || "N/A"}</div>
+            </div>
+            <div class="detail-property">
+              <div class="detail-property-label">District</div>
+              <div class="detail-property-value">${props.District || "N/A"}</div>
+            </div>
+          `;
+          break;
+
+        case "cool_location":
+          detailHtml = `
+            <div class="detail-property">
+              <div class="detail-property-label">Category</div>
+              <div class="detail-property-value">${props.category || "N/A"}</div>
+            </div>
+            <div class="detail-property">
+              <div class="detail-property-label">Address</div>
+              <div class="detail-property-value">${
+                props.address?.street || "N/A"
+              } ${props.address?.postcode || ""}</div>
+            </div>
+            ${
+              props.opening_hours
+                ? `<div class="detail-property">
+              <div class="detail-property-label">Hours</div>
+              <div class="detail-property-value">${props.opening_hours.summary || "N/A"}</div>
+            </div>`
+                : ""
+            }
+            ${
+              props.accessibility
+                ? `<div class="detail-property">
+              <div class="detail-property-label">Accessibility</div>
+              <div class="detail-property-value">
+                ${props.accessibility.wheelchair ? "♿ Wheelchair: Yes" : ""}
+                ${props.accessibility.elevator ? " | 🛗 Elevator: Yes" : ""}
+              </div>
+            </div>`
+                : ""
+            }
+            ${
+              props.notes
+                ? `<div class="detail-property">
+              <div class="detail-property-label">Notes</div>
+              <div class="detail-property-value">${props.notes}</div>
+            </div>`
+                : ""
+            }
+          `;
+          break;
+
+        case "social_service":
+          detailHtml = `
+            <div class="detail-property">
+              <div class="detail-property-label">Category</div>
+              <div class="detail-property-value">${props.Domein || "N/A"}</div>
+            </div>
+            ${
+              props.Adres
+                ? `<div class="detail-property">
+              <div class="detail-property-label">Address</div>
+              <div class="detail-property-value">${props.Adres}</div>
+            </div>`
+                : ""
+            }
+          `;
+          break;
+
+        case "park":
+          detailHtml = `
+            <div class="detail-property">
+              <div class="detail-property-label">Type</div>
+              <div class="detail-property-value">Park / Green Space</div>
+            </div>
+            ${
+              props.name
+                ? `<div class="detail-property">
+              <div class="detail-property-label">Name</div>
+              <div class="detail-property-value">${props.name}</div>
+            </div>`
+                : ""
+            }
+          `;
+          break;
+
+        case "tree":
+          detailHtml = `
+            <div class="detail-property">
+              <div class="detail-property-label">Type</div>
+              <div class="detail-property-value">Tree (Shade)</div>
+            </div>
+            ${
+              props.name
+                ? `<div class="detail-property">
+              <div class="detail-property-label">Species</div>
+              <div class="detail-property-value">${props.name}</div>
+            </div>`
+                : ""
+            }
+          `;
+          break;
+
+        default:
+          detailHtml = "<p>No additional details available.</p>";
+      }
+
+      content.innerHTML = detailHtml;
+      panel.classList.add("active");
+    }
+
+    document.getElementById("detail-close").addEventListener("click", () => {
+      document.getElementById("detail-panel").classList.remove("active");
+    });
+
+    // ============================================================================
+    // INITIALIZATION
+    // ============================================================================
+
+    document.addEventListener("DOMContentLoaded", initMap);
+
+    // Heat opacity slider
+    document.getElementById("heat-opacity").addEventListener("input", (e) => {
+      document.getElementById("heat-opacity-value").textContent = e.target.value + "%";
+    });
+
+    // Tab switching
+    document.querySelectorAll(".sidebar-tab").forEach((btn) => {
+      btn.addEventListener("click", () => showTab(btn.dataset.tab));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# ── Large raw source data (too big for GitHub) ────────────────────────────────
+data/raw/2025-cbs_pc6_2024_v1/
+data/raw/GevoelstemperatuurBuurt_2022.gpkg
+
+# ── Python ────────────────────────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Local editor/tool state ───────────────────────────────────────────────────
+.claude/settings.local.json

@@ -1,0 +1,125 @@
+{
+  "locations": [
+    {
+      "id": "centrale-bibliotheek-oba-oba",
+      "name": "OBA Oosterdok (Central Library)",
+      "category": "indoor_library",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [4.9118, 52.3843]
+      },
+      "address": {
+        "street": "Oosterdokskade",
+        "postcode": "1011 DL",
+        "city": "Amsterdam"
+      },
+      "opening_hours": {
+        "timezone": "Europe/Amsterdam",
+        "summary": "Typically daily; hours vary by floor/service",
+        "url": "https://www.oba.nl/"
+      },
+      "price": {
+        "type": "free",
+        "detail": "Public library services"
+      },
+      "accessibility": {
+        "wheelchair": true,
+        "stroller_friendly": true,
+        "elevator": true,
+        "quiet_zone": true
+      },
+      "tags": ["quiet", "family_friendly", "indoor_cooling"],
+      "notes": "Large public library; strong option for extended cool rest and study.",
+      "source": "curated"
+    },
+    {
+      "id": "stedelijk-museum",
+      "name": "Stedelijk Museum Amsterdam",
+      "category": "indoor_museum",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [4.8792, 52.358]
+      },
+      "address": {
+        "street": "Museumplein 10",
+        "postcode": "1071 DJ",
+        "city": "Amsterdam"
+      },
+      "opening_hours": {
+        "timezone": "Europe/Amsterdam",
+        "summary": "Check museum site for same-day hours",
+        "url": "https://www.stedelijk.nl/"
+      },
+      "price": {
+        "type": "paid",
+        "detail": "Museum ticket; concessions may apply"
+      },
+      "accessibility": {
+        "wheelchair": true,
+        "stroller_friendly": true,
+        "elevator": true,
+        "quiet_zone": false
+      },
+      "tags": ["family_friendly", "indoor_cooling"],
+      "notes": "Indoor climate-controlled spaces; good during peak heat if you plan a visit.",
+      "source": "curated"
+    },
+    {
+      "id": "vondelpark-open",
+      "name": "Vondelpark (shaded areas)",
+      "category": "outdoor_park",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [4.8718, 52.3579]
+      },
+      "address": {
+        "city": "Amsterdam"
+      },
+      "opening_hours": {
+        "timezone": "Europe/Amsterdam",
+        "summary": "Public park; open daily",
+        "url": null
+      },
+      "price": {
+        "type": "free",
+        "detail": null
+      },
+      "accessibility": {
+        "wheelchair": "partial",
+        "stroller_friendly": true,
+        "paths": "mixed surfaces"
+      },
+      "tags": ["shade", "green_space", "family_friendly"],
+      "notes": "Prefer tree-lined paths and benches; combine with indoor breaks on extreme heat days.",
+      "source": "curated"
+    },
+    {
+      "id": "example-drinking-tap-1",
+      "name": "Public drinking water point (example)",
+      "category": "water_tap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [4.892, 52.374]
+      },
+      "address": {
+        "city": "Amsterdam"
+      },
+      "opening_hours": {
+        "timezone": "Europe/Amsterdam",
+        "summary": "Outdoor tap; typically always on",
+        "url": null
+      },
+      "price": {
+        "type": "free",
+        "detail": null
+      },
+      "accessibility": {
+        "wheelchair": true,
+        "stroller_friendly": true
+      },
+      "tags": ["hydration", "infrastructure"],
+      "notes": "Replace with verified municipal tap data when integrated.",
+      "source": "curated"
+    }
+  ]
+}

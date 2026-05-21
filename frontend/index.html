@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <title>Koeltekaart — GGD Amsterdam</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&display=swap">
+  <link rel="stylesheet" href="/css/app.css" />
+  <style>
+    #map-section { position: fixed; top: var(--offset); left: 0; right: 0; bottom: 0; height: auto; }
+  </style>
+</head>
+<body class="mode-user">
+
+<a class="skip-link" href="#list-view-inner" data-i18n="skip_to_list">
+  Sla de kaart over en ga naar de lijst met koelteplekken
+</a>
+
+<div id="a11y-status" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ── Heat plan banner ──────────────────────────────────────────────────── -->
+  <div id="heat-banner" class="heat-banner heat-banner--active" role="status" aria-live="polite">
+    <div class="banner-inner">
+      <span class="banner-pulse"></span>
+      <span id="banner-text" class="banner-text"></span>
+    </div>
+  </div>
+
+  <!-- ── Topbar ─────────────────────────────────────────────────────────────── -->
+  <header id="topbar">
+    <a class="logo" href="/" aria-label="Koeltekaart homepage">
+      <img src="/download.png" alt="" class="logo-img" />
+      <span class="logo-title" data-i18n="title">Koeltekaart</span>
+    </a>
+
+    <div id="search-wrap" role="search">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="8.5" y1="8.5" x2="13" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input id="search-input" type="search" autocomplete="off" spellcheck="false" aria-label="Search" />
+      <div id="search-results" role="listbox" hidden></div>
+    </div>
+
+    <div class="topbar-actions">
+      <button id="btn-near" class="ctrl-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="7" cy="7" r="2" fill="currentColor"/>
+          <line x1="7" y1="0"    x2="7"  y2="2.5"  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="7" y1="11.5" x2="7"  y2="14"   stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="0" y1="7"    x2="2.5" y2="7"   stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="11.5" y1="7" x2="14" y2="7"    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span data-i18n="near_me">In mijn buurt</span>
+      </button>
+      <button id="btn-lang" class="ctrl-btn lang-btn" aria-label="Switch language">EN</button>
+      <button id="btn-sidebar-toggle" class="ctrl-btn icon-only mobile-only" aria-label="Filters" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <line x1="2" y1="4"  x2="14" y2="4"  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="4" y1="8"  x2="12" y2="8"  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="6" y1="12" x2="10" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      
+
+    </div>
+  </header>
+
+  <!-- ── Page content ───────────────────────────────────────────────────────── -->
+  <div id="page">
+
+    <!-- ── Map section ────────────────────────────────────────────────────────── -->
+    <div id="map-section">
+
+      <!-- View toggle (Map / List) -->
+      <div class="view-toggle-bar" role="group" aria-label="View mode">
+        <button class="view-btn active" data-view="map" aria-pressed="true">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            <rect x="1" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+            <rect x="7.5" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+            <rect x="1" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+            <rect x="7.5" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+          <span data-i18n="view_map">Kaart</span>
+        </button>
+        <button class="view-btn" data-view="list" aria-pressed="false">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            <line x1="1" y1="3" x2="12" y2="3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <line x1="1" y1="6.5" x2="12" y2="6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <line x1="1" y1="10" x2="12" y2="10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="view_list">Lijst</span>
+        </button>
+      </div>
+
+      <!-- Sidebar -->
+      <aside id="sidebar" aria-label="Map controls and filters">
+
+        <!-- Category filter -->
+        <div class="sidebar-section">
+          <div id="category-chips" class="category-chips" role="group" aria-label="Filter by category"></div>
+        </div>
+
+        <!-- Layers -->
+        <div class="sidebar-section">
+          <div class="layer-row on" data-cat="koelteplekken" role="switch" aria-checked="true" tabindex="0">
+            <span class="l-dot" style="background:#1A3B8B;"></span>
+            <span class="l-name" data-i18n="koelteplekken_label">Koelteplekken</span>
+            <span class="l-count" id="cnt-koelteplekken"></span>
+            <span class="l-sw" aria-hidden="true"></span>
+          </div>
+          <div id="koelte-controls">
+            <div class="koelte-search-wrap">
+              <svg class="koelte-search-icon" width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="8.5" y1="8.5" x2="13" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <input id="koelte-search" type="search" autocomplete="off" spellcheck="false" />
+            </div>
+            <div id="filter-chips" class="filter-chips" role="group" aria-label="Filter amenities"></div>
+          </div>
+          <div class="layer-row on" data-cat="water_taps" role="switch" aria-checked="true" tabindex="0">
+            <span class="l-dot" style="background:#0566C8;"></span>
+            <span class="l-name" data-i18n="water_label">Drinkwaterkranen</span>
+            <span class="l-count" id="cnt-water_taps"></span>
+            <span class="l-sw" aria-hidden="true"></span>
+          </div>
+          <div class="layer-row on" data-cat="parks" role="switch" aria-checked="true" tabindex="0">
+            <span class="l-dot" style="background:#147A37;"></span>
+            <span class="l-name" data-i18n="parks_label">Parken</span>
+            <span class="l-count" id="cnt-parks"></span>
+            <span class="l-sw" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <!-- Beleidskaart -->
+        <div class="sidebar-section sidebar-policy" id="sidebar-policy">
+          <div class="layer-row" id="heat-row" role="switch" aria-checked="false" tabindex="0">
+            <span class="l-dot heat-dot"></span>
+            <span class="l-name" data-i18n="heat_label">Interventieprioritering</span>
+            <span class="l-count"></span>
+            <span class="l-sw" aria-hidden="true"></span>
+          </div>
+          <div class="heat-legend" id="heat-legend" hidden>
+            <span class="heat-label" data-i18n="heat_low">Laag</span>
+            <div class="heat-gradient"></div>
+            <span class="heat-label" data-i18n="heat_high">Hoog</span>
+          </div>
+        </div>
+
+        <div class="sidebar-spacer"></div>
+
+        <!-- Contact -->
+      </aside>
+
+      <!-- Map -->
+      <div id="map" 
+      aria-label="Interactieve kaart. Gebruik de lijstweergave voor een screenreader-vriendelijke versie."
+      role="application">
+    </div>
+
+      <!-- Right panel — list or detail view -->
+      <div id="list-view" hidden aria-label="Locaties">
+        <div class="panel-hdr">
+          <div id="panel-hdr-list">
+            <div id="panel-hdr-title"></div>
+            <div id="panel-hdr-count"></div>
+          </div>
+          <button class="panel-hdr-back" id="panel-hdr-back" hidden>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span data-i18n="back">Terug</span>
+          </button>
+        </div>
+        <div id="list-view-inner" tabindex="-1"></div>
+      </div>
+
+      <div id="sidebar-backdrop" aria-hidden="true"></div>
+
+    </div><!-- /#map-section -->
+
+  </div><!-- /#page -->
+
+  <!-- ── Fixed overlays (outside page flow) ────────────────────────────────── -->
+  <div id="loader" aria-hidden="true"></div>
+
+  <div id="sheet" role="dialog" aria-modal="false" aria-label="Detail panel">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <div id="sheet-head-area" style="flex:1; min-width:0;"></div>
+      <button id="sheet-close" aria-label="Close panel">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <line x1="3" y1="3"  x2="13" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="13" y1="3" x2="3"  y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="sheet-body" id="sheet-body"></div>
+  </div>
+
+  <div id="hover-card" aria-hidden="true"></div>
+
+  <div id="contact-page" role="dialog" aria-modal="true" aria-labelledby="contact-page-title">
+    <div class="tips-page-header">
+      <button id="contact-back" class="tips-back-btn" aria-label="Back to map">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="back">Terug</span>
+      </button>
+      <span id="contact-page-title" class="tips-page-title" data-i18n="contact_page_title">Contact</span>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="tips-page-body" id="contact-page-body"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

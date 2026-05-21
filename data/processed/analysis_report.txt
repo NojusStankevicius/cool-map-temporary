@@ -1,0 +1,95 @@
+
+======================================================================
+  TOP 15 HIGHEST HEAT RISK BUURTEN  (HI_TOTAAL_S, scale 1–5)
+======================================================================
+            buurt_naam  HI_TOTAAL_S  HI_BLOOTSTELLING_S  HI_GEVOELIGHEID_S  HI_AANPASSINGSVERMOGEN_S  cool_500m  cool_1km
+        Banne Zuidwest         3.83                3.00               4.83                       3.5          9        21
+Olympisch Stadion e0o0         3.71                3.00               3.33                       3.5          7        21
+     Laan van Spartaan         3.67                3.00               3.17                       3.5          6        38
+          De Aker Oost         3.67                3.33               3.83                       3.5          4        12
+     Amsterdamse Poort         3.67                2.33               4.33                       3.0          8        21
+      Balboaplein e0o0         3.67                3.67               3.50                       2.5         16        48
+          IJplein e0o0         3.67                3.00               4.67                       3.0         12        36
+              Wildeman         3.63                3.00               5.00                       2.5         11        26
+               De Punt         3.63                3.00               4.50                       3.0          7        22
+           Borgerbuurt         3.63                3.00               5.00                       2.5         14        49
+      Haveneiland Oost         3.58                3.33               3.50                       3.5          3         6
+             Molenwijk         3.54                2.67               5.00                       3.5          7        14
+   Osdorp Midden Noord         3.54                2.67               5.00                       2.5          9        25
+          Buurt 5 Zuid         3.54                3.33               4.83                       2.0         10        29
+              Hoptille         3.54                2.67               3.50                       3.0          7        13
+
+======================================================================
+  TOP 15 COMBINED CLIMATE RISK  (AA_KRA_TOTAAL_S — heat + drought + flood + water safety)
+======================================================================
+            buurt_naam  AA_KRA_TOTAAL_S  HI_TOTAAL_S  WO_TOTAAL_S  DR_TOTAAL_S  WV_TOTAAL_S
+Tuindorp Oostzaan Oost             3.58         3.54       3.9475        2.925         3.92
+        Banne Zuidwest             3.56         3.83       3.1250        3.500         3.79
+             Kortvoort             3.48         3.29       3.8125        2.875         3.94
+       Jan Maijenbuurt             3.47         3.42       3.8875        3.450         3.11
+               Buurt 3             3.44         3.25       3.7200        3.075         3.71
+  Louis Chrispijnbuurt             3.43         3.46       3.6475        3.200         3.42
+        K-buurt Midden             3.42         3.38       3.8125        3.100         3.38
+     Amsterdamse Poort             3.41         3.67       3.5950        3.175         3.19
+  Jacques Veltmanbuurt             3.41         3.17       3.6175        3.400         3.46
+               De Punt             3.40         3.63       3.6650        2.775         3.54
+  Tuindorp Frankendael             3.40         2.67       3.6775        3.500         3.75
+ Overtoomse Veld Noord             3.39         3.54       3.8250        2.950         3.25
+          Buurt 5 Zuid             3.38         3.54       3.5200        3.100         3.35
+      Balboaplein e0o0             3.38         3.67       3.8950        2.950         3.02
+     Bloemenbuurt Zuid             3.37         3.09       3.8750        3.400         3.11
+
+======================================================================
+  DEMOGRAPHIC CORRELATIONS WITH HEAT SENSITIVITY  (HI_GEVOELIGHEID_S)
+======================================================================
+  Indicator                          Pearson r   n buurten
+  -------------------------------------------------------
+  % elderly (65+)                        0.339         456
+  % single-person households             0.013         449
+  % on social benefits                   0.220         456
+  % pre-1945 housing                    -0.149         436
+  % rental housing                       0.079         407
+
+======================================================================
+  PRIORITY GAPS: HIGH HEAT RISK + FEW COOL SPOTS WITHIN 500 m
+======================================================================
+  (threshold: HI_TOTAAL_S >= 3.08, top quartile)
+
+                  buurt_naam  HI_TOTAAL_S  HI_GEVOELIGHEID_S  cool_500m  cool_1km  pct_elderly_cbs  pct_benefits_cbs
+                G-buurt Oost         3.13               4.50          0         8            0.284             0.012
+             Osdorp Zuidoost         3.50               4.67          1        11            0.195             0.053
+             Reigersbos Zuid         3.08               3.83          1         5            0.215             0.061
+                    Kadoelen         3.08               3.33          1         7            0.106             0.029
+           Reigersbos Midden         3.29               4.17          1        10            0.193             0.061
+                De Aker West         3.46               3.50          2        10            0.140             0.067
+                 Java-eiland         3.09               3.17          2        17            0.169             0.026
+             Houthavens West         3.21               2.00          2        24            0.075             0.030
+        Louis Chrispijnbuurt         3.46               4.83          2        17            0.191             0.074
+                  Terrasdorp         3.21               4.50          3        14            0.156             0.112
+Zuidwestkwadrant Osdorp Zuid         3.29               4.00          3        17            0.072             0.091
+          Steigereiland Zuid         3.29               3.00          3         6            0.046             0.076
+      Oostelijke Handelskade         3.29               2.83          3        22            0.101             0.055
+                  Sporenburg         3.13               2.83          3        16            0.081             0.057
+         Steigereiland Noord         3.13               2.33          3         8            0.031             0.061
+
+======================================================================
+  BUURTEN WITH HIGH HEAT RISK AND HIGH ELDERLY SHARE
+======================================================================
+  (31 buurten match: heat top quartile AND elderly top quartile)
+
+                    buurt_naam  HI_TOTAAL_S  pct_elderly_cbs  pct_single_cbs  cool_500m
+                   Borgerbuurt         3.63            0.228           0.627         14
+           Osdorp Midden Noord         3.54            0.184           0.468          9
+               Osdorp Zuidoost         3.50            0.195           0.609          1
+     Middelveldsche Akerpolder         3.50            0.175           0.388          5
+                 Meer en Oever         3.46            0.190           0.483          7
+          Louis Chrispijnbuurt         3.46            0.191           0.533          2
+           Buikslotermeerplein         3.46            0.288           0.640         10
+           Bijlmermuseum Noord         3.42            0.217           0.576          6
+                   Blauwe Zand         3.42            0.163           0.358          7
+                     Oostpoort         3.42            0.171           0.533         13
+                    Loenermark         3.38            0.166           0.610          9
+             Reigersbos Midden         3.29            0.193           0.523          1
+Frederik Hendrikbuurt Zuidwest         3.29            0.258           0.586         16
+                     Kortvoort         3.29            0.182           0.650          5
+              Westerdokseiland         3.29            0.225           0.446          5

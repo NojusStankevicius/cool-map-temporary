@@ -1,0 +1,27 @@
+{
+  "title": "Heat safety in Amsterdam",
+  "subtitle": "Practical, evidence-informed steps for hot days",
+  "sections": [
+    {
+      "id": "hydration",
+      "title": "Hydration",
+      "body": "Drink water regularly before you feel thirsty. Carry a refillable bottle and use public drinking water points when available. Limit alcohol and very sugary drinks, which can worsen dehydration."
+    },
+    {
+      "id": "heat_illness",
+      "title": "Recognising heat-related illness",
+      "body": "Watch for heavy sweating, muscle cramps, tiredness, headache, dizziness, nausea, or confusion. Move to a cooler place, rest, sip water, and cool the skin. Seek medical help if symptoms are severe or do not improve."
+    },
+    {
+      "id": "vulnerable_groups",
+      "title": "Older adults, children, and caregivers",
+      "body": "Check on neighbours and relatives who may be isolated. Children and older adults heat up faster and may not notice early signs. Plan rest breaks in cool indoor spaces and avoid strenuous activity during the hottest hours."
+    },
+    {
+      "id": "planning",
+      "title": "Plan your day",
+      "body": "Combine shade, green space, and indoor cooling locations. Prefer morning or evening for errands. Use the Cool Map to find nearby taps, parks, and accessible indoor spaces with the details you need to decide quickly."
+    }
+  ],
+  "references_note": "Guidance is summarised for general education; follow local public health advisories during heat warnings."
+}
